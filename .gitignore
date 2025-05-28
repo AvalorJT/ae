@@ -1,0 +1,6 @@
+#Ignore builds
+/build
+#Ignore Dist
+/dist
+#Ignore cache folders
+__pycache__/
