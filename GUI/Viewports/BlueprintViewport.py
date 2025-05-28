@@ -8,35 +8,42 @@ class BlueprintViewport(QGraphicsView):
         super().__init__(parent)
         self.setScene(QGraphicsScene())
         self.setAcceptDrops(True) # Enable drag and drop
-        self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
+        self.setDragMode(QGraphicsView.DragMode.NoDrag)
         self.setRenderHint(QPainter.RenderHint.Antialiasing)
         self.setSceneRect(-200, -200, 400, 400) # Define a larger scene area
         self.scale_factor = 1.0
 
     def dragEnterEvent(self, event):
-        print(f"dragEnterEvent(){event}")
+        if event.mimeData().hasText():
+            event.acceptProposedAction()
+            print(f"Drag Enter Event: Accepted. Data: {event.mimeData().text()}")
+        else:
+            event.ignore()
+            print(f"Drag Enter Event: Ignored. No text data.")
+
+    # --- CRITICAL: Ensure this method is present and accepts the action ---
+    def dragMoveEvent(self, event):
         if event.mimeData().hasText():
             event.acceptProposedAction()
         else:
-            event.ignore() # Important: ignore if not text data
-
+            event.ignore()
 
     def dropEvent(self, event):
-        print("Drop event triggered (BlueprintViewport)") # Better print
-        if event.mimeData().hasText(): # Always check mimeData content
+        print("Drop event triggered (BlueprintViewport)") # This should now print!
+        if event.mimeData().hasText():
             text = event.mimeData().text()
             node = ApiCallNode(name=text)
             scene_pos = self.mapToScene(event.position().toPoint())
             node.setPos(scene_pos)
             self.scene().addItem(node)
             event.acceptProposedAction()
+            print(f"Node '{text}' added at {scene_pos}")
         else:
             event.ignore()
+            print("Drop event: Ignored. No text data.")
 
     def wheelEvent(self, event):
-        # event.modifiers() returns Qt.KeyboardModifiers, which are bit flags.
-        # Check against Qt.ControlModifier directly.
-        if event.modifiers() & Qt.KeyboardModifier.ControlModifier: # Corrected enum access
+        if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
             zoom_in_factor = 1.25
             zoom_out_factor = 1 / zoom_in_factor
             if event.angleDelta().y() > 0:
@@ -45,6 +52,6 @@ class BlueprintViewport(QGraphicsView):
             else:
                 self.scale(zoom_out_factor, zoom_out_factor)
                 self.scale_factor *= zoom_out_factor
-            event.accept() # Accept the event to prevent further propagation
+            event.accept()
         else:
             super().wheelEvent(event)

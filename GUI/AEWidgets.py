@@ -8,7 +8,7 @@ class AEDraggableListWidget(QListWidget):
         super().__init__(parent)
         self.setDragEnabled(True) # This enables the drag support for the list itself
 
-    def startDrag(self, supportedActions: Qt.DropActions) -> None:
+    def startDrag(self, supportedActions: Qt.DropActions) -> None: # type: ignore
         # This method is automatically called by Qt when a drag gesture is detected.
         # 'supportedActions' typically comes from the QListWidget's default behavior,
         # but we customize what data is put into the QMimeData.
@@ -24,4 +24,4 @@ class AEDraggableListWidget(QListWidget):
         drag = QDrag(self)
         drag.setMimeData(mime_data)
         # Use Qt.CopyAction for dropping a new item, Qt.MoveAction if you want to remove from list
-        drag.exec(Qt.DropAction.CopyAction | Qt.DropAction.CopyAction)
+        drag.exec(Qt.DropAction.CopyAction | Qt.DropAction.MoveAction)
