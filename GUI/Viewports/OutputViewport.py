@@ -1,4 +1,4 @@
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Signal, Qt
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -17,6 +17,7 @@ class OutputViewport(QWidget):
         self.output_display = QTextEdit() # Use QTextEdit or QPlainTextEdit
         self.output_display.setReadOnly(True)
         self.output_display.setPlaceholderText("Output will appear here...")
+        self.output_display.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse | Qt.TextInteractionFlag.TextSelectableByKeyboard)
         main_layout.addWidget(self.output_display)
 
         # Input Line

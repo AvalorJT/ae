@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QGraphicsView, QGraphicsScene
 from PySide6.QtGui import QPainter
 from GUI.Nodes.ApiCallNodes import ApiCallNode
-from PySide6.QtCore import Qt, QPointF
+from PySide6.QtCore import Qt
 
 class BlueprintViewport(QGraphicsView):
     def __init__(self, parent=None):
@@ -21,7 +21,6 @@ class BlueprintViewport(QGraphicsView):
             event.ignore()
             print(f"Drag Enter Event: Ignored. No text data.")
 
-    # --- CRITICAL: Ensure this method is present and accepts the action ---
     def dragMoveEvent(self, event):
         if event.mimeData().hasText():
             event.acceptProposedAction()
@@ -29,7 +28,7 @@ class BlueprintViewport(QGraphicsView):
             event.ignore()
 
     def dropEvent(self, event):
-        print("Drop event triggered (BlueprintViewport)") # This should now print!
+        print("Drop event triggered (BlueprintViewport)") 
         if event.mimeData().hasText():
             text = event.mimeData().text()
             node = ApiCallNode(name=text)
