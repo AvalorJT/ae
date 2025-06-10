@@ -1,0 +1,23 @@
+{ 
+    "ExampleAPI": {
+        "description": "This is an example API configuration.",
+        "environments": {
+            "staging": {
+                "tenants": {
+                    "name": {
+                        "id": "",
+                        "secret": ""
+                    }
+                }
+            },
+            "production": {
+                "tenants": {
+                    "name2": {
+                        "id": "",
+                        "secret": ""
+                    }
+                }
+            }
+        }
+    }
+}
