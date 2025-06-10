@@ -5,12 +5,13 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QListWidget,
     QToolBar,
+    QLabel
 )
-from PySide6.QtCore import Qt, QMimeData
-from PySide6.QtGui import QDrag, QIcon, QAction
+
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon, QAction
 from GUI.Viewports.BlueprintViewport import BlueprintViewport
 from GUI.Viewports.OutputViewport import OutputViewport
-from GUI.AEWidgets import AEDraggableListWidget
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -40,16 +41,21 @@ class MainWindow(QMainWindow):
         main_content_layout = QHBoxLayout()
 
         # API Call Library
-        self.api_library = AEDraggableListWidget()
+        self.api_library = QListWidget()
         self.api_library.addItem("Get User Data")
         self.api_library.addItem("Process User Data")
         self.api_library.addItem("Log Activity")
         main_content_layout.addWidget(self.api_library)
 
-        # Blueprint Viewport
-        self.blueprint_viewport = BlueprintViewport()
-        main_content_layout.addWidget(self.blueprint_viewport, 1)
-        main_layout.addLayout(main_content_layout, 1)
+        
+        # Action Viewport (Placeholder for now)
+        # This will later be replaced by your custom ActionViewport widget
+        self.action_viewport_placeholder = QLabel("Action Viewport: Detailed API Call Configuration")
+        self.action_viewport_placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        main_content_layout.addWidget(self.action_viewport_placeholder, 1) # Stretch factor to take up space
+
+        main_layout.addLayout(main_content_layout, 1) # Stretch factor for the main content area
+
 
 
         # Output View
