@@ -8,12 +8,10 @@ from PySide6.QtWidgets import (
     QToolBar,
     QLabel,
     QComboBox, # NEW: Import QComboBox
-    QSpacerItem, # NEW: For toolbar spacing
     QSizePolicy, # NEW: For toolbar spacing
 )
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QIcon, QAction
-from GUI.Viewports.BlueprintViewport import BlueprintViewport
+from PySide6.QtGui import QIcon, QAction, QKeySequence 
 from GUI.Viewports.OutputViewport import OutputViewport
 
 class MainWindow(QMainWindow):
@@ -102,14 +100,26 @@ class MainWindow(QMainWindow):
 
         main_layout.addLayout(main_content_layout, 1) # Stretch factor for the main content area
 
-
-
         # Output View
         self.output_viewport = OutputViewport()
         self.output_viewport.command_entered.connect(self.handle_shell_command)
         main_layout.addWidget(self.output_viewport,0)
 
         self.setCentralWidget(central_widget)
+
+        close_action = QAction("Close Application", self) # Give it a descriptive name
+        
+        # 2. Set the shortcut to the Escape key
+        # Qt.Key.Key_Escape is the enum for the Escape key
+        # QKeySequence wraps it for shortcut assignment
+        close_action.setShortcut(QKeySequence(Qt.Key.Key_Escape))
+        
+        # 3. Connect the action's 'triggered' signal to the QMainWindow's 'close' slot
+        # The 'close' slot will gracefully close the window (and thus the application).
+        close_action.triggered.connect(self.close)
+        
+        # 4. Add the action to the main window. This registers the shortcut.
+        self.addAction(close_action)
         
 
     def _load_config(self):
@@ -138,25 +148,25 @@ class MainWindow(QMainWindow):
         separator.setStyleSheet("background-color: #555; border: 2px solid #444; margin-left: 7px;") # 10px margin on the left
         # --- END ADDED MARGIN ---
         return separator
-
-        # Style the separator: a dark gray background with a subtle border
-        separator.setStyleSheet("background-color: #555; border: 1px solid #444;")
-        return separator
+    
     def _populate_api_combobox(self):
-        self.api_combobox.blockSignals(True) # Block signals during population
+        self.api_combobox.blockSignals(True)
         self.api_combobox.clear()
-        if self.config_data:
-            self.api_combobox.addItems(sorted(self.config_data.keys()))
-        self.api_combobox.blockSignals(False) # Unblock signals
-        self._update_environment_combobox() # Trigger update for environment
+        apis: dict = self.config_data.get("apis", {})
+        if apis:
+            self.api_combobox.addItems(sorted(apis.keys()))
+        self.api_combobox.blockSignals(False)
+        self._update_environment_combobox()  # Trigger update for environment combobox
 
     def _update_environment_combobox(self):
         selected_api = self.api_combobox.currentText()
         self.env_combobox.blockSignals(True)
         self.env_combobox.clear()
-        if selected_api and selected_api in self.config_data:
-            environments = sorted(self.config_data[selected_api].keys())
-            self.env_combobox.addItems(environments)
+        if selected_api and "apis" in self.config_data and selected_api in self.config_data["apis"]:
+            api_details = self.config_data["apis"][selected_api]
+            if "environments" in api_details:
+                environments = sorted(api_details["environments"].keys())
+                self.env_combobox.addItems(environments)
         self.env_combobox.blockSignals(False)
         self._update_tenant_combobox() # Trigger update for tenant
 
@@ -165,12 +175,22 @@ class MainWindow(QMainWindow):
         selected_env = self.env_combobox.currentText()
         self.tenant_combobox.blockSignals(True)
         self.tenant_combobox.clear()
+
+        # --- FIX: Access tenants through "apis:", "environments", and "tenants" keys ---
         if selected_api and selected_env and \
-           selected_api in self.config_data and \
-           selected_env in self.config_data[selected_api]:
-            tenants = sorted(self.config_data[selected_api][selected_env])
-            self.tenant_combobox.addItems(tenants)
+           "apis" in self.config_data and \
+           selected_api in self.config_data["apis"] and \
+           "environments" in self.config_data["apis"][selected_api]: # Check that 'environments' key exists
+
+            environments_data = self.config_data["apis"][selected_api]["environments"]
+            if selected_env in environments_data: # <--- CRITICAL NEW CHECK: Does the selected_env actually exist?
+                env_details:dict = environments_data[selected_env]
+                if env_details and "tenants" in env_details:
+                    tenants_data = env_details.get("tenants", {})
+                    tenants = sorted(tenants_data.keys())
+                    self.tenant_combobox.addItems(tenants)
         self.tenant_combobox.blockSignals(False)
+
 
     def handle_shell_command(self, command):
         # This is where you'll process commands from the shell
