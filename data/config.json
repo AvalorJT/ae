@@ -2,6 +2,8 @@
     "apis": {
         "ExampleAPI": {
             "description": "This is an example API configuration.",
+            "module": "apis.ExampleAPI",
+            "class": "ExampleAPI",
             "environments": {
                 "staging": {
                     "tenants": {
@@ -12,6 +14,33 @@
                     }
                 },
                 "production": {
+                    "tenants": {
+                        "name2": {
+                            "id": "",
+                            "secret": ""
+                        },
+                        "name3": {
+                            "id": "",
+                            "secret": ""
+                        }
+                    }
+                }
+            }
+        },
+        "APIleDugma": {
+            "description": "This is a dugma of API configuration.",
+            "module": "apis.ExampleAPI",
+            "class": "DugmaAPI",
+            "environments": {
+                "stg": {
+                    "tenants": {
+                        "name": {
+                            "id": "",
+                            "secret": ""
+                        }
+                    }
+                },
+                "prd": {
                     "tenants": {
                         "name2": {
                             "id": "",
